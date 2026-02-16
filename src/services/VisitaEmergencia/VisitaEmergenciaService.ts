@@ -3,6 +3,7 @@ import { inject, injectable } from "tsyringe";
 import { UpdateVisitaEmergenciaDtoType } from "../../dtos/VisitaEmergencia/UpdateVisitaEmergenciaDto";
 import VisitaEmergenciaRepository from "../../repositories/VisitaEmergenciaRepository";
 import { FindVisitaEmergenciaDtoType } from "../../dtos/VisitaEmergencia/FindVisitaEmergenciaDto";
+import CasoArchivoModel from "../../models/pioapp/webtables/CasoArchivoModel";
 
 @injectable()
 export default class VisitaEmergenciaService {
@@ -20,7 +21,13 @@ export default class VisitaEmergenciaService {
     }
 
     async findVisitaEmergencia(data:FindVisitaEmergenciaDtoType) : Promise<any> {
-        const result = await this.visitaEmergenciaRepository.findById(data.id_visita, true)
+        const result = await this.visitaEmergenciaRepository.findById(data.id_visita, true, false, [
+            {
+                model: CasoArchivoModel,
+                as: "archivos_caso",
+                required: false // LEFT JOIN
+            }
+        ])
         return result
     }
 

@@ -1,5 +1,6 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelizeInit } from "../../../config/database";
+import CasoArchivoModel from "./CasoArchivoModel";
 
 class VisitaEmergenciaModel extends Model {
     public id_visita?: number | undefined;
@@ -17,6 +18,9 @@ class VisitaEmergenciaModel extends Model {
     public fecha_programacion?: string | null | undefined;
     public user_asignado?: string | undefined;
     public nombre_user_asignado?: string | undefined;
+    public id_caso?: string | null | undefined;
+    public division?: number | null | undefined;
+    public fecha_proceso?: string | null | undefined;
     public userCreatedAt?: number | null | undefined;
     public userUpdatedAt?: number | null | undefined;
     public createdAt?: string | null | undefined;
@@ -87,6 +91,18 @@ VisitaEmergenciaModel.init(
             type: DataTypes.TEXT,
             allowNull: false
         },
+        id_caso: {
+            type: DataTypes.UUID,
+            allowNull: true
+        },
+        division: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        fecha_proceso: {
+            type: DataTypes.DATE,
+            allowNull: true
+        },
         userCreatedAt: {
             type: DataTypes.BIGINT,
             allowNull: true
@@ -103,5 +119,11 @@ VisitaEmergenciaModel.init(
         timestamps: true
     }
 )
+
+VisitaEmergenciaModel.hasMany(CasoArchivoModel, {
+    foreignKey: "id_caso",
+    sourceKey: "id_caso",
+    as: "archivos_caso"
+})
 
 export default VisitaEmergenciaModel
