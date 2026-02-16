@@ -27,17 +27,18 @@ export default class VisitaEmergenciaRepository implements IVisitaEmergenciaRepo
         return raw ? visita.get({ plain: true }) : visita  
     }
 
-    async findById(id_visita: number, error: boolean = true, raw: boolean = false): Promise<VisitaEmergenciaModel | null> {
+    async findById(id_visita: number, error: boolean = true, raw: boolean = false, include:any[] = []): Promise<VisitaEmergenciaModel | null> {
         const result = await VisitaEmergenciaModel.findByPk(id_visita, { 
-            raw,
+            // raw,
             attributes: {
                 include: [
                     [ Sequelize.literal(`CURRENT_DATE >= "fecha_programacion"::DATE`), 'ingreso_visita_valid' ]
                 ]
-            } 
+            },
+            include 
         })
         if(!result && error) throw new Error(`Error no se encontro ninguna visita emergencia con id: ${id_visita}`)
-        return result
+        return raw ? result?.get({ plain: true }) : result
     }
 
 }

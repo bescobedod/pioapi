@@ -5,6 +5,6 @@ export default interface IVisitaEmergenciaRepository {
 
     updateById(id_visita:number, data:Partial<VisitaEmergenciaModel>, t:Transaction|null, raw:boolean) : Promise<VisitaEmergenciaModel|null>
 
-    findById(id_visita:number, error:boolean, raw:boolean) : Promise<VisitaEmergenciaModel|null>
+    findById(id_visita:number, error:boolean, raw:boolean, include:any[]) : Promise<VisitaEmergenciaModel|null>
 
 }
