@@ -3,63 +3,96 @@ import { saveRecepcionDtoType } from "../../dtos/recepciones/SaveRecepcionDto";
 import { userToken } from "../../types/ResponseTypes";
 import { Transaction } from "sequelize";
 import EntradaPdvService from "./EntradaPdv/EntradaPdvService";
-import { SERIES_AVICOLA, SERIES_INSUMOS } from "../../utils/Recepcion/RecepcionUtils";
+import {
+  SERIES_AVICOLA,
+  SERIES_INSUMOS,
+} from "../../utils/Recepcion/RecepcionUtils";
 import SapInsumosService from "./SapInsumos/SapInsumosService";
 import { clearTextAndUpperCase } from "../../utils/Cadenas/TextUtil";
 import SapPolloService from "./SapPollo/SapPolloService";
 import ResponseEntryArticulosSapType from "../../types/Recepciones/ResponseEntryArticulosSapType";
 import tEntradaInventarioModel from "../../models/pdv/tables/tEntradaInventarioModel";
 import RecepcionEventPush from "../../events/Recepcion/RecepcionEventPush";
+import LogRecepcionRepository from "../../repositories/LogRecepcionRepository";
 
 @injectable()
 export default class RecepcionesServices {
+  constructor(
+    @inject(EntradaPdvService) private entradaPdvService: EntradaPdvService,
+    @inject(SapInsumosService) private sapInsumosService: SapInsumosService,
+    @inject(SapPolloService) private sapPolloService: SapPolloService,
+    @inject(LogRecepcionRepository)
+    private logRecepcionRepository: LogRecepcionRepository,
+  ) {}
 
-    constructor(
-        @inject(EntradaPdvService) private entradaPdvService:EntradaPdvService,
-        @inject(SapInsumosService) private sapInsumosService:SapInsumosService,
-        @inject(SapPolloService) private sapPolloService:SapPolloService
-    ) {}
+  async saveRecepcionService(
+    data: saveRecepcionDtoType,
+    user: userToken,
+    t: Transaction | null = null,
+  ): Promise<any> {
+    //emitir notificacion
+    const { tienda_nombre, name_tipo_entrega } = data.cabecera;
+    const codigo_empleado_piloto = Number(
+      data?.cabecera?.codigo_empleado_piloto ?? 0,
+    );
+    let total_articulos: number = 0;
+    data?.detalle?.forEach(
+      ({ cantidad }) => (total_articulos += Number(cantidad)),
+    );
+    //variables para notificacion
 
-    async saveRecepcionService(data:saveRecepcionDtoType, user:userToken) : Promise<any> {
+    let responseSapSdk: ResponseEntryArticulosSapType | null = null;
 
-        //emitir notificacion
-        const { tienda_nombre, name_tipo_entrega } = data.cabecera
-        const codigo_empleado_piloto = Number(data?.cabecera?.codigo_empleado_piloto ?? 0)
-        let total_articulos:number = 0
-        data?.detalle?.forEach(({ cantidad }) => total_articulos += Number(cantidad))
-        //variables para notificacion
+    this.entradaPdvService.validSerieEntrada(data);
 
-        let responseSapSdk:ResponseEntryArticulosSapType|null = null
+    const entradaEncabezadoPdv: tEntradaInventarioModel =
+      (await this.entradaPdvService.createEntradas(
+        data,
+      )) as tEntradaInventarioModel;
 
-        this.entradaPdvService.validSerieEntrada(data)
-        
-        const entradaEncabezadoPdv:tEntradaInventarioModel = await this.entradaPdvService.createEntradas(data) as tEntradaInventarioModel
+    const isInsumo = SERIES_INSUMOS.includes(
+      clearTextAndUpperCase(entradaEncabezadoPdv?.serie ?? ""),
+    );
 
-        const isInsumo = SERIES_INSUMOS.includes(clearTextAndUpperCase(entradaEncabezadoPdv?.serie ?? ''))
+    const isPollo = SERIES_AVICOLA.includes(
+      clearTextAndUpperCase(entradaEncabezadoPdv?.serie ?? ""),
+    );
 
-        const isPollo = SERIES_AVICOLA.includes(clearTextAndUpperCase(entradaEncabezadoPdv?.serie ?? ''))
+    if (isInsumo)
+      responseSapSdk =
+        await this.sapInsumosService.postUploadSapInsumos(entradaEncabezadoPdv);
 
-        if(isInsumo) responseSapSdk = await this.sapInsumosService.postUploadSapInsumos(entradaEncabezadoPdv)
+    if (isPollo)
+      responseSapSdk =
+        await this.sapPolloService.postUploadSapPollo(entradaEncabezadoPdv);
 
-        if(isPollo) responseSapSdk = await this.sapPolloService.postUploadSapPollo(entradaEncabezadoPdv)
+    await this.entradaPdvService.updateEncabezadoByIdEntradaInventario(
+      entradaEncabezadoPdv,
+      responseSapSdk as ResponseEntryArticulosSapType,
+    );
 
-        await this.entradaPdvService.updateEncabezadoByIdEntradaInventario(
-            entradaEncabezadoPdv, 
-            responseSapSdk as ResponseEntryArticulosSapType
-        )
+    await this.logRecepcionRepository.create(
+      {
+        data: data,
+        user_session: user,
+        user_created_at: user.createdAt ? new Date(user.createdAt) : null,
+        user_updated_at: user.updatedAt ? new Date(user.updatedAt) : null,
+      },
+      t,
+    );
 
-        //emitir notificacion
-        codigo_empleado_piloto && RecepcionEventPush.EVENT_EMIT_NOTIFICATION({ 
-            data: { 
-                body: `Se completo una entrega de '${name_tipo_entrega??" -- "}' en la tienda '${tienda_nombre??' -- '}', total de la recepcion: ${total_articulos} articulos.`,
-                id_asunto_notificacion: 1,
-                title: `${tienda_nombre??" -- "}`,
-                user: codigo_empleado_piloto,
-                data_payload: data ?? {}
-            } 
-        })
+    //emitir notificacion
+    codigo_empleado_piloto &&
+      RecepcionEventPush.EVENT_EMIT_NOTIFICATION({
+        data: {
+          body: `Se completo una entrega de '${name_tipo_entrega ?? " -- "}' en la tienda '${tienda_nombre ?? " -- "}', total de la recepcion: ${total_articulos} articulos.`,
+          id_asunto_notificacion: 1,
+          title: `${tienda_nombre ?? " -- "}`,
+          user: codigo_empleado_piloto,
+          data_payload: data ?? {},
+        },
+      });
 
-        return responseSapSdk
-    }
-
+    return responseSapSdk;
+  }
 }

@@ -3,24 +3,37 @@ import { container } from "tsyringe";
 import ArticulosRutaController from "../../controllers/Rutas/ArticulosRutaController";
 import authMiddleware from "../../middlewares/authMiddleware";
 import validateFields from "../../middlewares/validateFields";
-import { PedidosRutaDto } from "../../dtos/Rutas/PedidosRutaDto";
+import {
+  PedidosRutaDto,
+  PedidosRutaRecepcionDto,
+} from "../../dtos/Rutas/PedidosRutaDto";
 import { ListArticulosRutaDto } from "../../dtos/Rutas/ListArticulosRutaDto";
 
-const articulosRutaRouter = Router()
-const articulosRutaController = container.resolve(ArticulosRutaController)
+const articulosRutaRouter = Router();
+const articulosRutaController = container.resolve(ArticulosRutaController);
 
-articulosRutaRouter.use(authMiddleware)
-
-articulosRutaRouter.get(
-    '/list', 
-    validateFields(PedidosRutaDto, null, true), 
-    articulosRutaController.listArticulosRuta.bind(articulosRutaController)
-)
+articulosRutaRouter.use(authMiddleware);
 
 articulosRutaRouter.get(
-    '/list/POS', 
-    validateFields(ListArticulosRutaDto, null, true), 
-    articulosRutaController.listEntradaArticulosTiendaPOS.bind(articulosRutaController)
-)
+  "/list",
+  validateFields(PedidosRutaDto, null, true),
+  articulosRutaController.listArticulosRuta.bind(articulosRutaController),
+);
 
-export default articulosRutaRouter
+articulosRutaRouter.get(
+  "/list/recepcion",
+  validateFields(PedidosRutaRecepcionDto, null, true),
+  articulosRutaController.listArticulosRutaRecepcion.bind(
+    articulosRutaController,
+  ),
+);
+
+articulosRutaRouter.get(
+  "/list/POS",
+  validateFields(ListArticulosRutaDto, null, true),
+  articulosRutaController.listEntradaArticulosTiendaPOS.bind(
+    articulosRutaController,
+  ),
+);
+
+export default articulosRutaRouter;
