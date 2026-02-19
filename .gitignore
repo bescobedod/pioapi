@@ -2,4 +2,3 @@
 node_modules/
 dist/
 src/storage/logs
-src/config/configDatabase.ts
