@@ -1,7 +1,7 @@
 import { injectable } from "tsyringe";
 import IEntradaInventarioRepository from "../interface/IEntradaInventarioRepository";
 import tEntradaInventarioModel from "../models/pdv/tables/tEntradaInventarioModel";
-import { Transaction } from "sequelize";
+import { col, fn, literal, Op, Transaction } from "sequelize";
 
 @injectable()
 export default class EntradaInventarioRepository implements IEntradaInventarioRepository {
@@ -30,6 +30,45 @@ export default class EntradaInventarioRepository implements IEntradaInventarioRe
         })
         if(filasActualizadas <= 0 && error) throw new Error(`Error al editar la entrada con idEntradaInventario -> ${idEntradaInventario}`);
         return filasActualizadas
+    }
+
+    async getRecepcionesValidDay(empresa: string, tienda: string, raw: boolean = false): Promise<tEntradaInventarioModel[]> {
+        const registros = await tEntradaInventarioModel.findAll({
+            attributes: {
+              include: [
+                [
+                  fn(
+                    'CONCAT',
+                    col('serie'),
+                    literal("'-'"),
+                    col('numero'),
+                    literal("'-'"),
+                    col('fecha')
+                  ),
+                  'title_resumen'
+                ]
+              ]
+            },
+            where: {
+              empresa,
+              tienda,
+              serie: {
+                [Op.in]: ['AG2', 'AG3']
+              },
+              anulado: {
+                [Op.ne]: 1
+              },
+              fecha: {
+                [Op.between]: [
+                  literal("DATEADD(HOUR, -24, GETDATE())"),
+                  literal("GETDATE()")
+                ]
+              }
+            },
+            raw
+        })
+
+        return registros
     }
 
 }
