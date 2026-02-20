@@ -9,4 +9,6 @@ export default interface IEntradaInventarioRepository {
 
     updateByIdEntradaInventario(idEntradaInventario:number ,data:Partial<tEntradaInventarioModel>, error:boolean, t:Transaction | null) : Promise<number>;
 
+    getRecepcionesValidDay(empresa:string, tienda:string, raw:boolean) : Promise<tEntradaInventarioModel[]>
+
 }
