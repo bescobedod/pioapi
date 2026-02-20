@@ -1,32 +1,79 @@
-import AuthServices from "../../services/Auth/AuthServices"
-import { Request, Response } from "express"
-import { JsonResponse } from "../../types/ResponseTypes"
-import { injectable,inject } from "tsyringe"
-import { handleSend } from "../../utils/HandlerFactory"
-import { LoginDtoType } from "../../dtos/LoginDto"
-import { Transaction } from "sequelize"
-import { LoginBiometricDtoType } from "../../dtos/Auth/LoginBiometricDto"
+import AuthServices from "../../services/Auth/AuthServices";
+import { Request, Response } from "express";
+import { JsonResponse } from "../../types/ResponseTypes";
+import { injectable, inject } from "tsyringe";
+import { handleSend } from "../../utils/HandlerFactory";
+import { LoginDtoType } from "../../dtos/LoginDto";
+import { Transaction } from "sequelize";
+import { LoginBiometricDtoType } from "../../dtos/Auth/LoginBiometricDto";
+import { ChangeFirstPasswordDtoType } from "../../dtos/Auth/ChangeFirstPasswordDto";
+import { ForgotPasswordDtoType } from "../../dtos/Auth/ForgotPasswordDto";
 
 @injectable()
 export default class AuthController {
+  constructor(@inject(AuthServices) private authServices: AuthServices) {}
 
-    constructor (@inject(AuthServices) private authServices:AuthServices) {}
+  async login(req: Request, res: Response<JsonResponse<any>>) {
+    await handleSend(
+      res,
+      async (t) => {
+        const result = await this.authServices.validLogin(
+          req.body as LoginDtoType,
+          t as Transaction,
+        );
+        return result;
+      },
+      "Credenciales correctas",
+      true,
+      "PIOAPP",
+    );
+  }
 
-    async login(req:Request, res:Response<JsonResponse<any>>) {
-        await handleSend(res, async (t) =>{
-            const result = await this.authServices.validLogin(req.body as LoginDtoType, t as Transaction)
-            return result
-        }, 'Credenciales correctas', true, 'PIOAPP')
-    }
+  async loginBiometric(req: Request, res: Response<JsonResponse<any>>) {
+    await handleSend(
+      res,
+      async (t) => {
+        const result = await this.authServices.validLoginBiometric(
+          req.body as LoginBiometricDtoType,
+          t as Transaction,
+        );
+        return result;
+      },
+      "Login iniciado correctamente.",
+      true,
+      "PIOAPP",
+    );
+  }
 
-    async loginBiometric(req:Request, res:Response<JsonResponse<any>>) {
-        await handleSend(res, async (t) => {
-            const result = await this.authServices.validLoginBiometric(
-                req.body as LoginBiometricDtoType, 
-                t as Transaction
-            ) 
-            return result
-        }, 'Login iniciado correctamente.', true, 'PIOAPP')
-    }
+  async changeFirstPassword(req: Request, res: Response<JsonResponse<any>>) {
+    await handleSend(
+      res,
+      async (t) => {
+        const result = await this.authServices.changeFirstPassword(
+          req.body as ChangeFirstPasswordDtoType,
+          t as Transaction,
+        );
+        return result;
+      },
+      "Contraseña actualizada correctamente.",
+      true,
+      "PIOAPP",
+    );
+  }
 
+  async forgotPassword(req: Request, res: Response<JsonResponse<any>>) {
+    await handleSend(
+      res,
+      async (t) => {
+        const result = await this.authServices.forgotPassword(
+          req.body as ForgotPasswordDtoType,
+          t as Transaction,
+        );
+        return result;
+      },
+      "Contraseña restablecida correctamente.",
+      true,
+      "PIOAPP",
+    );
+  }
 }

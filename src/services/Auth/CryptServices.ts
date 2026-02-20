@@ -1,22 +1,20 @@
 import { injectable } from "tsyringe";
-import { genSalt, hash, compare } from 'bcrypt'
+import { genSalt, hash, compare } from "bcrypt";
 
 @injectable()
 export default class CryptServices {
+  private saltRounds: number;
 
-    private saltRounds:number
+  constructor() {
+    this.saltRounds = 10;
+  }
 
-    constructor(){
-        this.saltRounds = 10
-    }
+  async Hash(text: string = ""): Promise<string> {
+    const salt = await genSalt(this.saltRounds);
+    return hash(text, salt);
+  }
 
-    async Hash(text:string = ''):Promise<String>{
-        const salt = await genSalt(this.saltRounds)
-        return hash(text, salt)
-    }
-
-    async Compare(text:string = '', textHash:string = ''):Promise<boolean>{
-        return compare(text, textHash)
-    }
-
+  async Compare(text: string = "", textHash: string = ""): Promise<boolean> {
+    return compare(text, textHash);
+  }
 }
