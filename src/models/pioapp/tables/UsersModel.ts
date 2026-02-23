@@ -21,6 +21,7 @@ class UsersModel extends Model {
   public readonly updatedAt!: Date;
   public baja?: boolean;
   public is_temporal_password?: boolean;
+  public image_profile?: string;
 }
 
 UsersModel.init(
@@ -45,6 +46,10 @@ UsersModel.init(
       type: DataTypes.BOOLEAN,
       allowNull: true,
       defaultValue: false,
+    },
+    image_profile: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
   },
   {
