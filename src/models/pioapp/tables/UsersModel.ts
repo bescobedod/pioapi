@@ -22,6 +22,8 @@ class UsersModel extends Model {
   public baja?: boolean;
   public is_temporal_password?: boolean;
   public image_profile?: string;
+  public ms_account_id?: string;
+  public email_office?: string;
 }
 
 UsersModel.init(
@@ -49,6 +51,14 @@ UsersModel.init(
     },
     image_profile: {
       type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    ms_account_id: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    email_office: {
+      type: DataTypes.STRING(255),
       allowNull: true,
     },
   },

@@ -60,7 +60,20 @@ export default class AuthServices {
     }
 
     // La validación de si debe cambiar su contraseña la dejamos disponible en el propio userJson para el frontend
+    return await this.generateUserPayload(
+      user as UsersModel,
+      id_unique_device,
+      exponent_push_token,
+      t,
+    );
+  }
 
+  async generateUserPayload(
+    user: UsersModel,
+    id_unique_device: string | null | undefined,
+    exponent_push_token: string | null | undefined,
+    t: Transaction,
+  ): Promise<any> {
     const { password, ...userJson } = user as any;
     //ingresar tokens "notification push" a dispositivo unico
     if (id_unique_device && exponent_push_token && user?.id_users)
@@ -100,10 +113,12 @@ export default class AuthServices {
         },
         t,
       );
-    const { password, ...restUser } = user;
-    const token = generateToken(restUser);
-    const userPayload = { ...restUser, token };
-    return userPayload;
+    return await this.generateUserPayload(
+      user,
+      id_unique_device,
+      exponent_push_token,
+      t,
+    );
   }
 
   async changeFirstPassword(
