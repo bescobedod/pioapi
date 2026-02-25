@@ -19,48 +19,51 @@ import consumosConvivioRouter from "./ConsumosConvivio/ConsumosConvivioRouter";
 import notificacionesPushRouter from "./NotificacionesPush/NotificacionesPushRouter";
 import visitaEmergenciaRouter from "./VisitaEmergencia/VisitaEmergenciaRouter";
 import TipoBoletaRouter from "./TipoBoleta/TipoBoletaRouter";
+import publicacionesRouter from "./Publicaciones/PublicacionesRouter";
 
-const router = Router()
+const router = Router();
 
-router.use('/auth', authRouter)
+router.use("/auth", authRouter);
 
-router.use('/tipo/visitas', tipoVisitasRouter)
+router.use("/tipo/visitas", tipoVisitasRouter);
 
-router.use('/tiendas/modulo', tiendasModuloRouter)
+router.use("/tiendas/modulo", tiendasModuloRouter);
 
-router.use('/visitas', visitasRouter)
+router.use("/visitas", visitasRouter);
 
-router.use('/jwt', jwtRouter)
+router.use("/jwt", jwtRouter);
 
-router.use('/permissions', permissionRouter)
+router.use("/permissions", permissionRouter);
 
-router.use('/rutas/view', rutasViewRouter)
+router.use("/rutas/view", rutasViewRouter);
 
-router.use('/nomina/periodos', periodoRouter)
+router.use("/nomina/periodos", periodoRouter);
 
-router.use('/nomina/firma-boleta', firmaBoletaRouter)
+router.use("/nomina/firma-boleta", firmaBoletaRouter);
 
-router.use('/nomina/boleta', boletaConsultaRouter)
+router.use("/nomina/boleta", boletaConsultaRouter);
 
-router.use('/articulos/ruta', articulosRutaRouter)
+router.use("/articulos/ruta", articulosRutaRouter);
 
-router.use('/recepcion/articulos', recepcionesRouter)
+router.use("/recepcion/articulos", recepcionesRouter);
 
-router.use('/logs', logsRouter)
+router.use("/logs", logsRouter);
 
-router.use('/producto/convivio', productoConvivioRouter)
+router.use("/producto/convivio", productoConvivioRouter);
 
-router.use('/category/product/convivio', categoryProductoConvivioRouter)
+router.use("/category/product/convivio", categoryProductoConvivioRouter);
 
-router.use('/personas/convivio', personaConvivioRouter)
+router.use("/personas/convivio", personaConvivioRouter);
 
-router.use('/consumos/convivio', consumosConvivioRouter)
+router.use("/consumos/convivio", consumosConvivioRouter);
 
-router.use('/notificaciones', notificacionesPushRouter)
+router.use("/notificaciones", notificacionesPushRouter);
 
-router.use('/visita/emergencia', visitaEmergenciaRouter)
+router.use("/visita/emergencia", visitaEmergenciaRouter);
 
-router.use('/tipo/boleta', TipoBoletaRouter)
+router.use("/tipo/boleta", TipoBoletaRouter);
+
+router.use("/publicaciones", publicacionesRouter);
 
 // router.use(authMiddleware)
 
@@ -70,4 +73,4 @@ router.use('/tipo/boleta', TipoBoletaRouter)
 //     res.json({ message: user })
 // })
 
-export default router
+export default router;
