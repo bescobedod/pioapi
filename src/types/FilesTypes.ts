@@ -1,4 +1,4 @@
-export type CarpetasS3Type = 'visitas' 
+export type CarpetasS3Type = 'visitas' | 'devoluciones'
 
 export type fileUploadSingleType = {
     nameFileKey?: string;
