@@ -7,9 +7,27 @@ import basicAuthMiddleware from "../../middlewares/basicAuthMiddleware";
 import { LoginBiometricDto } from "../../dtos/Auth/LoginBiometricDto";
 import { ChangeFirstPasswordDto } from "../../dtos/Auth/ChangeFirstPasswordDto";
 import { ForgotPasswordDto } from "../../dtos/Auth/ForgotPasswordDto";
+import authMiddleware from "../../middlewares/authMiddleware";
+import {
+  LinkMicrosoftDto,
+  LoginMicrosoftDto,
+} from "../../dtos/Auth/MicrosoftAuthDto";
 
 const authRouter = Router();
 const authController = container.resolve(AuthController);
+
+authRouter.post(
+  "/microsoft/link-account",
+  authMiddleware,
+  validateFields(LinkMicrosoftDto),
+  authController.linkMicrosoftAccount.bind(authController),
+);
+
+authRouter.post(
+  "/microsoft/login",
+  validateFields(LoginMicrosoftDto),
+  authController.loginMicrosoft.bind(authController),
+);
 
 authRouter.post(
   "/login",
@@ -34,6 +52,12 @@ authRouter.post(
   "/forgot-password",
   validateFields(ForgotPasswordDto),
   authController.forgotPassword.bind(authController),
+);
+
+authRouter.post(
+  "/upload-profile-image",
+  authMiddleware,
+  authController.uploadProfileImage.bind(authController),
 );
 
 export default authRouter;

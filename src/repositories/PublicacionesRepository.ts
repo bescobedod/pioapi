@@ -1,0 +1,136 @@
+import { injectable } from "tsyringe";
+import fs from "fs";
+import PublicacionesModel from "../models/pioapp/tables/PublicacionesModel";
+import CategoriasPublicacionModel from "../models/pioapp/tables/CategoriasPublicacionModel";
+import PublicacionesArchivosModel from "../models/pioapp/tables/PublicacionesArchivosModel";
+import UsuarioPublicacionesVistasModel from "../models/pioapp/tables/UsuarioPublicacionesVistasModel";
+import { Op, Transaction, QueryTypes } from "sequelize";
+
+@injectable()
+export default class PublicacionesRepository {
+  // Devuelve las publicaciones activas que el usuario NO ha visto
+  async getUnreadPublications(
+    id_usuario: number,
+    id_rol?: number,
+  ): Promise<any[]> {
+    if (!PublicacionesModel.sequelize)
+      throw new Error("Database not initialized");
+    const query = `SELECT * FROM app.fn_get_publicaciones_no_vistas(:id_usuario, :id_rol)`;
+    const results = await PublicacionesModel.sequelize.query(query, {
+      replacements: { id_usuario, id_rol: id_rol || null },
+      type: QueryTypes.SELECT,
+    });
+    return results as any[];
+  }
+
+  // Devuelve el historial de publicaciones activas (opcional por categoría)
+  async getPublicationsHistory(
+    id_usuario: number,
+    id_categoria?: number,
+    id_rol?: number,
+  ): Promise<any[]> {
+    if (!PublicacionesModel.sequelize)
+      throw new Error("Database not initialized");
+    const query = `SELECT * FROM app.fn_get_publicaciones_historial(:id_usuario, :id_categoria, :id_rol)`;
+    const results = await PublicacionesModel.sequelize.query(query, {
+      replacements: {
+        id_usuario,
+        id_categoria: id_categoria || null,
+        id_rol: id_rol || null,
+      },
+      type: QueryTypes.SELECT,
+    });
+    return results as any[];
+  }
+
+  async markAsRead(
+    id_publicacion: number,
+    id_usuario: number,
+    t: Transaction,
+  ): Promise<UsuarioPublicacionesVistasModel> {
+    return await UsuarioPublicacionesVistasModel.create(
+      { id_publicacion, id_usuario },
+      { transaction: t },
+    );
+  }
+
+  // Update publication state (2 = Visto, 3 = Entendido) and respective timestamps
+  async changeStatus(
+    id_publicacion: number,
+    id_usuario: number,
+    estado: number,
+    t: Transaction,
+  ) {
+    // Buscar para no sobreescribir las fechas si ya existen (preservar primer tap)
+    const existing = await UsuarioPublicacionesVistasModel.findOne({
+      where: { id_publicacion, id_usuario },
+      transaction: t,
+    });
+
+    const updateData: any = {};
+    if (estado > (existing?.estado || 0)) {
+      updateData.estado = estado;
+    }
+
+    if (estado === 2 && !existing?.fecha_leido)
+      updateData.fecha_leido = new Date();
+    if (estado === 3 && !existing?.fecha_entendido)
+      updateData.fecha_entendido = new Date();
+
+    if (Object.keys(updateData).length > 0) {
+      if (existing) {
+        await UsuarioPublicacionesVistasModel.update(updateData, {
+          where: { id_publicacion, id_usuario },
+          transaction: t,
+        });
+      } else {
+        // Fallback: If no record was pre-inserted by the web (estado 1), create it
+        await UsuarioPublicacionesVistasModel.create(
+          { id_publicacion, id_usuario, estado, ...updateData },
+          { transaction: t },
+        );
+      }
+    }
+    return true;
+  }
+
+  async getAllCategories(): Promise<CategoriasPublicacionModel[]> {
+    return await CategoriasPublicacionModel.findAll({
+      where: { estado: true },
+      order: [["nombre", "ASC"]],
+    });
+  }
+
+  async createPublication(
+    data: {
+      id_categoria_publicacion: number;
+      titulo: string;
+      mensaje: string;
+      estado?: boolean;
+    },
+    archivosData?: {
+      url_archivo: string;
+      nombre_archivo: string;
+      tipo: string;
+    }[],
+    t?: Transaction,
+  ): Promise<PublicacionesModel> {
+    const pub = await PublicacionesModel.create(
+      data,
+      t ? { transaction: t } : undefined,
+    );
+
+    if (archivosData && archivosData.length > 0) {
+      const archivosAInsertar = archivosData.map((a) => ({
+        ...a,
+        id_publicacion: pub.id_publicacion,
+      }));
+      await PublicacionesArchivosModel.bulkCreate(
+        archivosAInsertar,
+        t ? { transaction: t } : undefined,
+      );
+    }
+
+    return pub;
+  }
+}
