@@ -15,6 +15,7 @@ import helmet from "helmet";
 import ServerJob from "./jobs/ServerJob";
 import EventServer from "./events/EventServer";
 import { connectRedis } from "./config/redisClient";
+import WorkerServer from "./worker/WorkerServer";
 // import multer from 'multer'
 
 // config()
@@ -65,6 +66,9 @@ ServerJob.handle()
 
 //inicializar listener de eventos
 EventServer.initEventServer()
+
+//inicializar workers
+WorkerServer.initWorkers()
 
 app.use(errorHandlerMiddleware)
 

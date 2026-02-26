@@ -20,6 +20,7 @@ import notificacionesPushRouter from "./NotificacionesPush/NotificacionesPushRou
 import visitaEmergenciaRouter from "./VisitaEmergencia/VisitaEmergenciaRouter";
 import TipoBoletaRouter from "./TipoBoleta/TipoBoletaRouter";
 import publicacionesRouter from "./Publicaciones/PublicacionesRouter";
+import DevolucionRouter from "./Devolucion/DevolucionRouter";
 
 const router = Router();
 
@@ -64,6 +65,8 @@ router.use("/visita/emergencia", visitaEmergenciaRouter);
 router.use("/tipo/boleta", TipoBoletaRouter);
 
 router.use("/publicaciones", publicacionesRouter);
+
+router.use('/devoluciones', DevolucionRouter)
 
 // router.use(authMiddleware)
 
