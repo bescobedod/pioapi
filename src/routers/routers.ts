@@ -19,6 +19,7 @@ import consumosConvivioRouter from "./ConsumosConvivio/ConsumosConvivioRouter";
 import notificacionesPushRouter from "./NotificacionesPush/NotificacionesPushRouter";
 import visitaEmergenciaRouter from "./VisitaEmergencia/VisitaEmergenciaRouter";
 import TipoBoletaRouter from "./TipoBoleta/TipoBoletaRouter";
+import DevolucionRouter from "./Devolucion/DevolucionRouter";
 
 const router = Router()
 
@@ -61,6 +62,8 @@ router.use('/notificaciones', notificacionesPushRouter)
 router.use('/visita/emergencia', visitaEmergenciaRouter)
 
 router.use('/tipo/boleta', TipoBoletaRouter)
+
+router.use('/devoluciones', DevolucionRouter)
 
 // router.use(authMiddleware)
 

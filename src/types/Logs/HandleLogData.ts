@@ -1,5 +1,5 @@
 type HandleLogData = {
-    type: 'handle' | 'auth' | 'fields' | 'global';
+    type: 'handle' | 'auth' | 'fields' | 'global' | 'devolucionJob';
     message: string | undefined;
     stack?: string;
     name?: string;

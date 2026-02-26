@@ -14,9 +14,11 @@ export const validateFileType = (file: any, allowedTypes: string[], fileName: st
     const mime = file.mimetype;
     const isImage = mime.startsWith("image/");
     const isPdf = mime === "application/pdf";
+    const isVideo = mime.startsWith("video/");
 
     const isValidType = (allowedTypes.includes("image") && isImage) || 
-                       (allowedTypes.includes("pdf") && isPdf);
+                       (allowedTypes.includes("pdf") && isPdf) ||
+                        (allowedTypes.includes("video") && isVideo);
 
     if (!isValidType) {
         throw new Error(`El archivo [${fileName}] tiene un formato no permitido. Solo se aceptan: ${allowedTypes.join(', ')}.`);

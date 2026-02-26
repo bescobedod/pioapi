@@ -5,5 +5,5 @@ export type FilesConfigProps = {
     minFiles?:number;
     minSize?:number; //MB
     maxSize?:number; //MB
-    allowedTypes?: ("image" | "pdf")[];
+    allowedTypes?: ("image" | "pdf" | "video")[];
 }
