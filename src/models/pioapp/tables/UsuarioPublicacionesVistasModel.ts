@@ -9,7 +9,9 @@ class UsuarioPublicacionesVistasModel extends Model {
   public id_vista!: number;
   public id_publicacion!: number;
   public id_usuario!: number;
-  public fecha_visto!: Date;
+  public estado!: number;
+  public fecha_leido!: Date;
+  public fecha_entendido!: Date;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -39,9 +41,17 @@ UsuarioPublicacionesVistasModel.init(
       },
       onDelete: "CASCADE",
     },
-    fecha_visto: {
+    estado: {
+      type: DataTypes.INTEGER,
+      defaultValue: 1,
+    },
+    fecha_leido: {
       type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
+      allowNull: true,
+    },
+    fecha_entendido: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
   },
   {

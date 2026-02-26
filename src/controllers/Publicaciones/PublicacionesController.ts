@@ -74,6 +74,31 @@ export default class PublicacionesController {
     );
   }
 
+  async changeStatus(req: RequestAuth, res: Response<JsonResponse<any>>) {
+    await handleSend(
+      res,
+      async (t) => {
+        const id_users = req.user?.id_users;
+        const { id_publicacion, estado } = req.body;
+
+        if (!id_users) throw new Error("Usuario no identificado.");
+        if (!id_publicacion || !estado)
+          throw new Error("Se requiere el ID de la publicación y el estado.");
+
+        await this.publicacionesService.changePublicationStatus(
+          Number(id_publicacion),
+          Number(id_users),
+          Number(estado),
+          t as Transaction,
+        );
+        return { success: true };
+      },
+      "Estado de la publicación actualizado correctamente",
+      true,
+      "PIOAPP",
+    );
+  }
+
   async getCategories(req: RequestAuth, res: Response<JsonResponse<any>>) {
     await handleSend(
       res,

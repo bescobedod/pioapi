@@ -54,6 +54,46 @@ export default class PublicacionesRepository {
     );
   }
 
+  // Update publication state (2 = Visto, 3 = Entendido) and respective timestamps
+  async changeStatus(
+    id_publicacion: number,
+    id_usuario: number,
+    estado: number,
+    t: Transaction,
+  ) {
+    // Buscar para no sobreescribir las fechas si ya existen (preservar primer tap)
+    const existing = await UsuarioPublicacionesVistasModel.findOne({
+      where: { id_publicacion, id_usuario },
+      transaction: t,
+    });
+
+    const updateData: any = {};
+    if (estado > (existing?.estado || 0)) {
+      updateData.estado = estado;
+    }
+
+    if (estado === 2 && !existing?.fecha_leido)
+      updateData.fecha_leido = new Date();
+    if (estado === 3 && !existing?.fecha_entendido)
+      updateData.fecha_entendido = new Date();
+
+    if (Object.keys(updateData).length > 0) {
+      if (existing) {
+        await UsuarioPublicacionesVistasModel.update(updateData, {
+          where: { id_publicacion, id_usuario },
+          transaction: t,
+        });
+      } else {
+        // Fallback: If no record was pre-inserted by the web (estado 1), create it
+        await UsuarioPublicacionesVistasModel.create(
+          { id_publicacion, id_usuario, estado, ...updateData },
+          { transaction: t },
+        );
+      }
+    }
+    return true;
+  }
+
   async getAllCategories(): Promise<CategoriasPublicacionModel[]> {
     return await CategoriasPublicacionModel.findAll({
       where: { estado: true },

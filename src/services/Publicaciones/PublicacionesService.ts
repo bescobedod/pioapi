@@ -49,6 +49,16 @@ export default class PublicacionesService {
     }
   }
 
+  async changePublicationStatus(
+    id_publicacion: number,
+    id_usuario: number,
+    estado: number,
+    t: Transaction,
+  ) {
+    await this.repo.changeStatus(id_publicacion, id_usuario, estado, t);
+    return true;
+  }
+
   async getCategories() {
     return await this.repo.getAllCategories();
   }
