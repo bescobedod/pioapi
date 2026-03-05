@@ -2,7 +2,7 @@ import { Router } from "express";
 import AuthController from "../../controllers/Auth/AuthController";
 import { container } from "tsyringe";
 import validateFields from "../../middlewares/validateFields";
-import { LoginDto } from "../../dtos/LoginDto";
+import { LoginDto } from "../../dtos/Auth/LoginDto";
 import basicAuthMiddleware from "../../middlewares/basicAuthMiddleware";
 import { LoginBiometricDto } from "../../dtos/Auth/LoginBiometricDto";
 import { ChangeFirstPasswordDto } from "../../dtos/Auth/ChangeFirstPasswordDto";

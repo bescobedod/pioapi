@@ -6,17 +6,18 @@ import {
   userToken,
 } from "../../types/ResponseTypes";
 import { Response } from "express";
-import { saveRecepcionDtoType } from "../../dtos/recepciones/SaveRecepcionDto";
+import { saveRecepcionDtoType } from "../../dtos/Recepciones/SaveRecepcionDto";
 import RecepcionesServices from "../../services/Recepciones/RecepcionesServices";
 import EntradaInventarioRepository from "../../repositories/EntradaInventarioRepository";
-import { GetRecepcionesValidDayDtoType } from "../../dtos/recepciones/GetRecepcionesValidDayDto";
+import { GetRecepcionesValidDayDtoType } from "../../dtos/Recepciones/GetRecepcionesValidDayDto";
 
 @injectable()
 export default class RecepcionesController {
   constructor(
     @inject(RecepcionesServices)
     private recepcionesServices: RecepcionesServices,
-    @inject(EntradaInventarioRepository) private entradaInventarioRepository:EntradaInventarioRepository
+    @inject(EntradaInventarioRepository)
+    private entradaInventarioRepository: EntradaInventarioRepository,
   ) {}
 
   async uploadRecepccionesClient(
@@ -39,13 +40,21 @@ export default class RecepcionesController {
     );
   }
 
-  async getRecepcionesValidDay(req:RequestAuth<GetRecepcionesValidDayDtoType>, res:Response<JsonResponse<any>>) {
-    await handleSend(res, async(t) => {
-      const result = await this.entradaInventarioRepository.getRecepcionesValidDay(
-        req.body.empresa,
-        req.body.tienda
-      )
-      return result
-    }, "Recepciones listadas correctamente.")
+  async getRecepcionesValidDay(
+    req: RequestAuth<GetRecepcionesValidDayDtoType>,
+    res: Response<JsonResponse<any>>,
+  ) {
+    await handleSend(
+      res,
+      async (t) => {
+        const result =
+          await this.entradaInventarioRepository.getRecepcionesValidDay(
+            req.body.empresa,
+            req.body.tienda,
+          );
+        return result;
+      },
+      "Recepciones listadas correctamente.",
+    );
   }
 }

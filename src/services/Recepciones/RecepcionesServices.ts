@@ -1,5 +1,5 @@
 import { inject, injectable } from "tsyringe";
-import { saveRecepcionDtoType } from "../../dtos/recepciones/SaveRecepcionDto";
+import { saveRecepcionDtoType } from "../../dtos/Recepciones/SaveRecepcionDto";
 import { userToken } from "../../types/ResponseTypes";
 import { Transaction } from "sequelize";
 import EntradaPdvService from "./EntradaPdv/EntradaPdvService";

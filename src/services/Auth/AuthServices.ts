@@ -1,5 +1,5 @@
 import { injectable, inject } from "tsyringe";
-import { LoginDtoType } from "../../dtos/LoginDto";
+import { LoginDtoType } from "../../dtos/Auth/LoginDto";
 import { Transaction } from "sequelize";
 import CryptServices from "./CryptServices";
 import { generateToken } from "../../utils/Jwt";

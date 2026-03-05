@@ -3,17 +3,19 @@ import { container } from "tsyringe";
 import ProductoConvivioController from "../../controllers/ProductoConvivio/ProductoConvivioController";
 import authMiddleware from "../../middlewares/authMiddleware";
 import validateFields from "../../middlewares/validateFields";
-import { NwProductConvivioDto } from "../../dtos/ProductoConvivio/NwProductConvivioDto";
+import { NwProductConvivioDto } from "../../dtos/Convivio/ProductoConvivio/NwProductConvivioDto";
 
-const productoConvivioRouter = Router()
-const productoConvivioController = container.resolve(ProductoConvivioController)
+const productoConvivioRouter = Router();
+const productoConvivioController = container.resolve(
+  ProductoConvivioController,
+);
 
-productoConvivioRouter.use(authMiddleware)
+productoConvivioRouter.use(authMiddleware);
 
 productoConvivioRouter.post(
-    '/create', 
-    validateFields(NwProductConvivioDto),
-    productoConvivioController.nwProductConvivio.bind(productoConvivioController)
-)
+  "/create",
+  validateFields(NwProductConvivioDto),
+  productoConvivioController.nwProductConvivio.bind(productoConvivioController),
+);
 
-export default productoConvivioRouter
+export default productoConvivioRouter;

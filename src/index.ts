@@ -1,15 +1,15 @@
 import "reflect-metadata";
-import express from 'express'
-import 'dotenv/config'
+import express from "express";
+import "dotenv/config";
 // import { config } from 'dotenv'
-import Routers from './routers/routers'
-import { connectionDb } from './config/database'
-import cors from 'cors'
+import Routers from "./routers/routers";
+import { connectionDb } from "./config/database";
+import cors from "cors";
 import errorHandlerMiddleware from "./middlewares/errorHandlerMiddleware";
-import fileUpload from 'express-fileupload'
-import http from 'http'
+import fileUpload from "express-fileupload";
+import http from "http";
 import HandleSocketGlobal from "./config/HandleSocketGlobal";
-import SocketServer from "./Sockets/SocketServer";
+import SocketServer from "./sockets/SocketServer";
 import limiterMiddleware from "./middlewares/limiterMiddleware";
 import helmet from "helmet";
 import ServerJob from "./jobs/ServerJob";
@@ -20,29 +20,29 @@ import WorkerServer from "./worker/WorkerServer";
 
 // config()
 
-const app = express()
+const app = express();
 
-const server = http.createServer(app)
+const server = http.createServer(app);
 
 // const upload = multer()
 
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 5000;
 
 // Confía en el primer proxy para obtener la IP real del cliente (necesario para rate limit)
-app.set('trust proxy', 1)
+app.set("trust proxy", 1);
 
 //seguridad
-app.use(helmet())
+app.use(helmet());
 
-app.use(cors())
+app.use(cors());
 
-app.use(express.json())
+app.use(express.json());
 
-app.use(express.urlencoded({ extended: true }))
+app.use(express.urlencoded({ extended: true }));
 
 // app.use(upload.any())
 
-app.use(fileUpload())
+app.use(fileUpload());
 
 //mandar error de timeout si la api se tarda mucho
 // app.use(timeout('5s'))
@@ -51,33 +51,31 @@ app.use(fileUpload())
 // app.use(timeoutMiddleware)
 
 //proteger apis de saturacion de solicitudes
-app.use('/api', limiterMiddleware)
+app.use("/api", limiterMiddleware);
 
 //all apis
-app.use('/api', Routers)
+app.use("/api", Routers);
 
 //listen sockets all
-HandleSocketGlobal.init(server)
+HandleSocketGlobal.init(server);
 
-SocketServer.appGateway()
+SocketServer.appGateway();
 
 //cron jobs
-ServerJob.handle()
+ServerJob.handle();
 
 //inicializar listener de eventos
-EventServer.initEventServer()
+EventServer.initEventServer();
 
 //inicializar workers
-WorkerServer.initWorkers()
+WorkerServer.initWorkers();
 
-app.use(errorHandlerMiddleware)
+app.use(errorHandlerMiddleware);
 
-server.listen(PORT, ()=> {
+server.listen(PORT, () => {
+  connectRedis();
 
-    connectRedis()
+  connectionDb();
 
-    connectionDb()
-
-    console.log(`Server running on http://localhost:${PORT}`)
-    
-})
+  console.log(`Server running on http://localhost:${PORT}`);
+});

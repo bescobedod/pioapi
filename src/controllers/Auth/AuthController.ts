@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { JsonResponse } from "../../types/ResponseTypes";
 import { injectable, inject } from "tsyringe";
 import { handleSend } from "../../utils/HandlerFactory";
-import { LoginDtoType } from "../../dtos/LoginDto";
+import { LoginDtoType } from "../../dtos/Auth/LoginDto";
 import { Transaction } from "sequelize";
 import { LoginBiometricDtoType } from "../../dtos/Auth/LoginBiometricDto";
 import { ChangeFirstPasswordDtoType } from "../../dtos/Auth/ChangeFirstPasswordDto";

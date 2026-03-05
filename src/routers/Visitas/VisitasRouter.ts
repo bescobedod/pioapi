@@ -3,15 +3,25 @@ import { Router } from "express";
 import authMiddleware from "../../middlewares/authMiddleware";
 import VisitasController from "../../controllers/Visitas/VisitasController";
 import validateFields from "../../middlewares/validateFields";
-import { CreateVisitaDto, fileConfigVisitaDto } from "../../dtos/CreateVisitaDto";
+import {
+  CreateVisitaDto,
+  fileConfigVisitaDto,
+} from "../../dtos/Visita/CreateVisitaDto";
 
-const visitasRouter = Router()
-const visitasController = container.resolve(VisitasController)
+const visitasRouter = Router();
+const visitasController = container.resolve(VisitasController);
 
-visitasRouter.use(authMiddleware)
+visitasRouter.use(authMiddleware);
 
-visitasRouter.post('/create', validateFields(CreateVisitaDto, fileConfigVisitaDto), visitasController.createVisita.bind(visitasController))
+visitasRouter.post(
+  "/create",
+  validateFields(CreateVisitaDto, fileConfigVisitaDto),
+  visitasController.createVisita.bind(visitasController),
+);
 
-visitasRouter.get('/list/all', visitasController.listAllVisitas.bind(visitasController))
+visitasRouter.get(
+  "/list/all",
+  visitasController.listAllVisitas.bind(visitasController),
+);
 
-export default visitasRouter
+export default visitasRouter;
